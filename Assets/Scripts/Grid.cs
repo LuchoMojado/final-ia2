@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Grid : MonoBehaviour
 {
-    [SerializeField] int _width = 1, _height = 1;
+    [SerializeField] int _width = 1, _length = 1;
     [SerializeField] float offset = 0.1f;
     Node[,] _grid;
     [SerializeField] Node _nodePrefab;
     //GameManager gm;
+    InputField _widthInput, _lengthInput;
 
     private void Start()
     {
@@ -28,11 +30,11 @@ public class Grid : MonoBehaviour
 
     private void GenerateGrid()
     {
-        _grid = new Node[_width, _height];
+        _grid = new Node[_width, _length];
 
         for (int x = 0; x < _width; x++)
         {
-            for (int z = 0; z < _height; z++)
+            for (int z = 0; z < _length; z++)
             {
                 var node = Instantiate(_nodePrefab);
                 _grid[x, z] = node;
@@ -48,11 +50,10 @@ public class Grid : MonoBehaviour
     public List<Node> GetNeighbors(Coordinates coordinates)
     {
         var neighbors = new List<Node>();
-        if (coordinates.z + 1 < _height) neighbors.Add(_grid[coordinates.x, coordinates.z + 1]);
+        if (coordinates.z + 1 < _length) neighbors.Add(_grid[coordinates.x, coordinates.z + 1]);
         if (coordinates.x + 1 < _width) neighbors.Add(_grid[coordinates.x + 1, coordinates.z]);
         if (coordinates.z - 1 >= 0) neighbors.Add(_grid[coordinates.x, coordinates.z - 1]);
         if (coordinates.x - 1 >= 0) neighbors.Add(_grid[coordinates.x - 1, coordinates.z]);
-
 
         return neighbors;
     }
@@ -61,7 +62,7 @@ public class Grid : MonoBehaviour
     {
         for (int x = 0; x < _width; x++)
         {
-            for (int y = 0; y < _height; y++)
+            for (int y = 0; y < _length; y++)
             {
                 if (_grid[x, y] == current)
                 {
@@ -71,4 +72,6 @@ public class Grid : MonoBehaviour
         }
         return default;
     }
+
+    
 }
