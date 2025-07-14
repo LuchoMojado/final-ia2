@@ -1,35 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Grid : MonoBehaviour
 {
-    [SerializeField] int _width = 1, _length = 1;
+    int _width, _length;
     [SerializeField] float offset = 0.1f;
     Node[,] _grid;
     [SerializeField] Node _nodePrefab;
-    //GameManager gm;
-    InputField _widthInput, _lengthInput;
+    GameManager gm;
 
     private void Start()
     {
-        GenerateGrid();
-        //gm = GameManager.instance;
+        gm = GameManager.instance;
     }
 
-    public void PaintNodesWhite(Node start, Node end)
+    public void GenerateGrid(int width, int length)
     {
-        foreach (var item in _grid)
-        {
-            if (item == start || item == end) continue;
-            if (item.isBlocked) continue;
-            item.ChangeColor(item.Cost > 1 ? item.costColor : Color.white);
-        }
-    }
+        _width = width;
+        _length = length;
 
-    private void GenerateGrid()
-    {
         _grid = new Node[_width, _length];
 
         for (int x = 0; x < _width; x++)
@@ -42,6 +32,8 @@ public class Grid : MonoBehaviour
                 node.transform.SetParent(transform);
 
                 node.Initialize(new Coordinates(x, z), this);
+
+                gm.allNodes.Add(node);
             }
         }
 

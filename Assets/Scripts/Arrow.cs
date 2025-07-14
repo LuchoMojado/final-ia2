@@ -5,19 +5,6 @@ using UnityEngine;
 public class Arrow : MonoBehaviour
 {
     [SerializeField] float _speed;
-    Node _node;
-
-    void SetPosition(Vector3 pos)
-    {
-        pos.y = transform.position.y;
-        transform.position = pos;
-    }
-
-    public void SetNode(Node node)
-    {
-        _node = node;
-        SetPosition(node.transform.position);
-    }
 
     public void Shoot(Vector3 target)
     {

@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] public Grid currentGraph;
-    [SerializeField] Agent _agent;
+    //[SerializeField] public Grid currentGraph;
+    public Agent agent;
     public Enemy enemy;
+    
+    [HideInInspector] public List<Node> allNodes;
 
     public static GameManager instance;
 
@@ -18,45 +20,19 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            ChangeAgentNode(GetNodeOnCursor());
-        }
-        if (Input.GetMouseButtonDown(1))
-        {
-            ChangeEnemyNode(GetNodeOnCursor());
-        }
-        if (Input.GetMouseButtonDown(2))
-        {
-            Node node = GetNodeOnCursor();
-            node?.SetBlock(!node.isBlocked);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            Node node = GetNodeOnCursor();
-            if (node != null) _agent.Run(node);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            Node node = GetNodeOnCursor();
-            if (node != null) _agent.Sneak(node);
-        }
-
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            _agent.EquipBow();
+            agent.EquipBow();
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            _agent.EquipDagger();
+            agent.EquipDagger();
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            _agent.BowAttack();
+            agent.BowAttack();
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -72,32 +48,5 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void ChangeAgentNode(Node node)
-    {
-        if (node == null) return;
-        _agent.SetCurrentNode(node);
-    }
-
-    void ChangeEnemyNode(Node node)
-    {
-        if (node == null) return;
-        enemy.SetNode(node);
-    }
-
-    public GameObject GetObjectOnCursor()
-    {
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity))
-        {
-            return hit.collider.gameObject;
-        }
-
-        return default;
-
-        /* return Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity) ? hit.collider.gameObject : default;*/
-    }
-
-    Node GetNodeOnCursor()
-    {
-        return GetObjectOnCursor()?.GetComponent<Node>();
-    }
+    
 }

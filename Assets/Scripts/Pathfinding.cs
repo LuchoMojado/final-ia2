@@ -40,7 +40,7 @@ public class Pathfinding
             {
                 if (item.isBlocked) continue;
 
-                int newCost = costSoFar[current] + item.Cost;
+                int newCost = costSoFar[current];
 
                 if (!costSoFar.ContainsKey(item) || newCost < costSoFar[current])
                 {

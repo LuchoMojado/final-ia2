@@ -14,7 +14,10 @@ public class Enemy : MonoBehaviour
 
     public void SetNode(Node node)
     {
+        if (_node != null) _node.isTaken = false;
+
         _node = node;
-        SetPosition(node.transform.position);
+        _node.isTaken = true;
+        SetPosition(node.othersPos.position);
     }
 }

@@ -99,7 +99,7 @@ public class GOAPManager : MonoBehaviour
             }),
             new GOAPActions("RunToArrow")
             .SetCost(1)
-            .Precondition(x => x.state.arrowReachable && !x.state.arrowNearby)
+            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby)
             .Effect(x =>
             {
                 x.state.arrowNearby = true;
@@ -108,7 +108,7 @@ public class GOAPManager : MonoBehaviour
             }),
             new GOAPActions("SneakToArrow")
             .SetCost(2)
-            .Precondition(x => x.state.arrowReachable && !x.state.arrowNearby && !x.state.detected)
+            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && !x.state.detected)
             .Effect(x =>
             {
                 x.state.arrowNearby = true;

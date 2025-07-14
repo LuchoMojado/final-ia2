@@ -14,8 +14,8 @@ public class WorldState
     public struct State
     {
         public float enemyHp;
-        public int arrows;
-        public bool detected, arrowReachable, arrowNearby, enemyReachable, enemyNearby, canRetreat;
+        public int arrows, arrowsAvailable;
+        public bool detected, arrowNearby, enemyReachable, enemyNearby, canRetreat;
         public WeaponType equippedWeapon;
 
         public State Clone()
@@ -25,7 +25,7 @@ public class WorldState
                 enemyHp = this.enemyHp,
                 arrows = this.arrows,
                 detected = this.detected,
-                arrowReachable = this.arrowReachable,
+                arrowsAvailable = this.arrowsAvailable,
                 arrowNearby = this.arrowNearby,
                 enemyReachable = this.enemyReachable,
                 enemyNearby = this.enemyNearby,

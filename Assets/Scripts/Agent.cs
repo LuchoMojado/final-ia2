@@ -83,7 +83,7 @@ public class Agent : MonoBehaviour
     public void SetCurrentNode(Node node)
     {
         _currentNode = node;
-        SetPosition(node.transform.position);
+        SetPosition(node.characterPos.position);
     }
 
     public void Run(Node node)
