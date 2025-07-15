@@ -86,6 +86,23 @@ public class Agent : MonoBehaviour
         SetPosition(node.characterPos.position);
     }
 
+    public bool IsNodeAccesible(Node node)
+    {
+        var path = _pf.AStar(_currentNode, node);
+
+        return path != null;
+    }
+
+    public bool ArrowNearby()
+    {
+        return _currentNode.arrow != null;
+    }
+
+    public bool EnemyNearby()
+    {
+        return _currentNode.isTaken;
+    }
+
     public void Run(Node node)
     {
         _pathToFollow = _pf.AStar(_currentNode, node);

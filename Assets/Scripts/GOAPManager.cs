@@ -159,10 +159,8 @@ public class GOAPManager : MonoBehaviour
         };
     }
 
-    public List<GOAPActions> ExecuteActions()
+    public List<GOAPActions> GetPlan(WorldState initialState)
     {
-        var initialState = new WorldState();
-
         Func<WorldState, int> heuristic = x =>
         {
             return Mathf.RoundToInt(x.state.enemyHp);

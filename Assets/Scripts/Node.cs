@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Node : MonoBehaviour
 {
-    Coordinates _coordinates;
+    public Coordinates coordinates;
     List<Node> _neighbors;
     Grid _grid;
 
@@ -22,7 +22,7 @@ public class Node : MonoBehaviour
         {
             if (_neighbors == null)
             {
-                _neighbors = _grid.GetNeighbors(_coordinates);
+                _neighbors = _grid.GetNeighbors(coordinates);
             }
 
             return _neighbors;
@@ -33,7 +33,7 @@ public class Node : MonoBehaviour
 
     public void Initialize(Coordinates coords, Grid grid)
     {
-        _coordinates = coords;
+        coordinates = coords;
         _grid = grid;
         _renderer = GetComponent<Renderer>();
         _baseColor = _renderer.material.color;
