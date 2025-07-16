@@ -22,7 +22,7 @@ public class GOAPManager
             new GOAPActions("Switch to dagger")
             .SetCost(1)
             .SetBehaviour(_gm.agent.EquipDagger)
-            .Precondition(x => x.state.equippedWeapon != WeaponType.Dagger)
+            .Precondition(x => x.state.equippedWeapon != WeaponType.Dagger && x.state.enemyReachable)
             .Effect(x =>
             {
                 x.state.equippedWeapon = WeaponType.Dagger;
@@ -31,7 +31,7 @@ public class GOAPManager
             new GOAPActions("Switch to hammer")
             .SetCost(1)
             .SetBehaviour(_gm.agent.EquipHammer)
-            .Precondition(x => x.state.equippedWeapon != WeaponType.Hammer)
+            .Precondition(x => x.state.equippedWeapon != WeaponType.Hammer && x.state.enemyReachable)
             .Effect(x =>
             {
                 x.state.equippedWeapon = WeaponType.Hammer;
@@ -40,7 +40,7 @@ public class GOAPManager
             new GOAPActions("Switch to bow")
             .SetCost(1)
             .SetBehaviour(_gm.agent.EquipBow)
-            .Precondition(x => x.state.equippedWeapon != WeaponType.Bow)
+            .Precondition(x => x.state.equippedWeapon != WeaponType.Bow && !x.state.enemyNearby)
             .Effect(x =>
             {
                 x.state.equippedWeapon = WeaponType.Bow;
@@ -111,39 +111,43 @@ public class GOAPManager
             new GOAPActions("Run to arrow")
             .SetCost(1)
             .SetBehaviour(_gm.agent.RunToArrow)
-            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby)
+            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && x.state.equippedWeapon == WeaponType.Bow)
             .Effect(x =>
             {
                 x.state.arrowNearby = true;
                 x.state.detected = true;
+                x.state.enemyNearby = false;
                 return x;
             }),
             new GOAPActions("Sneak to arrow")
             .SetCost(2)
             .SetBehaviour(_gm.agent.SneakToArrow)
-            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && !x.state.detected)
+            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && !x.state.detected && x.state.equippedWeapon == WeaponType.Bow)
             .Effect(x =>
             {
                 x.state.arrowNearby = true;
+                x.state.enemyNearby = false;
                 return x;
             }),
             new GOAPActions("Run to enemy")
             .SetCost(1)
             .SetBehaviour(_gm.agent.RunToEnemy)
-            .Precondition(x => x.state.enemyReachable && !x.state.enemyNearby)
+            .Precondition(x => x.state.enemyReachable && !x.state.enemyNearby && x.state.equippedWeapon != WeaponType.Bow)
             .Effect(x =>
             {
                 x.state.enemyNearby = true;
                 x.state.detected = true;
+                x.state.arrowNearby = false;
                 return x;
             }),
             new GOAPActions("Sneak to enemy")
             .SetCost(2)
             .SetBehaviour(_gm.agent.SneakToEnemy)
-            .Precondition(x => x.state.enemyReachable && !x.state.enemyNearby && !x.state.detected)
+            .Precondition(x => x.state.enemyReachable && !x.state.enemyNearby && !x.state.detected && x.state.equippedWeapon != WeaponType.Bow)
             .Effect(x =>
             {
                 x.state.enemyNearby = true;
+                x.state.arrowNearby = false;
                 return x;
             }),
             new GOAPActions("Run away from enemy")
@@ -159,7 +163,7 @@ public class GOAPManager
             new GOAPActions("Pick up arrow")
             .SetCost(1)
             .SetBehaviour(_gm.agent.PickArrow)
-            .Precondition(x => x.state.arrowNearby)
+            .Precondition(x => x.state.arrowNearby && x.state.equippedWeapon == WeaponType.Bow)
             .Effect(x =>
             {
                 x.state.arrows++;
@@ -179,7 +183,7 @@ public class GOAPManager
         };
     }
 
-    public List<GOAPActions> GetPlan(WorldState initialState)
+    public bool TryGetPlan(WorldState initialState, out List<GOAPActions> plan)
     {
         Func<WorldState, int> heuristic = x =>
         {
@@ -193,6 +197,15 @@ public class GOAPManager
 
         var worldStatePath = _pf.AStarGOAP(initialState, null, GetActions(), heuristic, objective);
 
-        return worldStatePath.Skip(1).Select(x => x.generatingAction).ToList();
+        if (worldStatePath != default)
+        {
+            plan = worldStatePath.Skip(1).Select(x => x.generatingAction).ToList();
+            return true;
+        }
+        else
+        {
+            plan = default;
+            return false;
+        }
     }
 }

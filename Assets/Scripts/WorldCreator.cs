@@ -24,7 +24,7 @@ public class WorldCreator : MonoBehaviour
 
     bool _continue = false;
 
-    int _gridWidth, _gridLength;
+    int _gridWidth = 5, _gridLength = 5;
 
     Action _clickCheck;
 
@@ -38,8 +38,11 @@ public class WorldCreator : MonoBehaviour
         _goapManager = new GOAPManager(_gm);
 
         _initialState = new();
-        SetStartingWeapon(0);
-        SetInvisibility(false);
+
+        _initialState.state.detected = true;
+        _initialState.state.arrows = 0;
+        _initialState.state.enemyHp = 50;
+        _initialState.state.equippedWeapon = WeaponType.Dagger;
 
         StartCoroutine(SetUpWorld());
     }
@@ -47,6 +50,9 @@ public class WorldCreator : MonoBehaviour
     private void Update()
     {
         if (Input.GetMouseButtonDown(0) && _clickCheck != null) _clickCheck();
+
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Space))
+            if (_continueButton.interactable == true) Continue();
     }
 
     public void SetGridWidth(string width)
@@ -67,8 +73,6 @@ public class WorldCreator : MonoBehaviour
         }
 
         _gridWidth = value;
-
-        if (_gridLength != 0) _continueButton.interactable = true;
     }
 
     public void SetGridLength(string length)
@@ -89,8 +93,6 @@ public class WorldCreator : MonoBehaviour
         }
 
         _gridLength = value;
-
-        if (_gridWidth != 0) _continueButton.interactable = true;
     }
 
     public void Continue()
@@ -123,7 +125,7 @@ public class WorldCreator : MonoBehaviour
     {
         if (node == null || node.isBlocked) return;
         
-        _gm.agent.SetNode(node);
+        _gm.agent.SetStartingNode(node);
 
         _continueButton.interactable = true;
     }
@@ -185,8 +187,6 @@ public class WorldCreator : MonoBehaviour
         }
 
         _initialState.state.arrows = value;
-
-        if (_initialState.state.enemyHp != 0) _continueButton.interactable = true;
     }
 
     public void SetInvisibility(bool invisible)
@@ -218,7 +218,7 @@ public class WorldCreator : MonoBehaviour
 
         _grid.GenerateGrid(_gridWidth, _gridLength);
 
-        Camera.main.transform.position += new Vector3(_gridWidth, 0); 
+        Camera.main.transform.position += new Vector3(_gridWidth * 1.05f, 0); 
 
         _clickCheck = ObstacleClick;
 
@@ -261,7 +261,6 @@ public class WorldCreator : MonoBehaviour
         _clickCheck = null;
 
         _continue = false;
-        _continueButton.interactable = false;
 
         _placeArrows.SetActive(false);
         _characterState.SetActive(true);
@@ -284,11 +283,19 @@ public class WorldCreator : MonoBehaviour
         _initialState.state.arrowNearby = _gm.agent.ArrowNearby();
         _initialState.state.enemyReachable = _gm.agent.IsNodeAccesible(enemyNode);
         _initialState.state.enemyNearby = _gm.agent.EnemyNearby();
-        _initialState.state.canRetreat = _grid.GetNeighbors(enemyNode.coordinates).Any();
+        _initialState.state.canRetreat = enemyNode.neighbors.Any();
 
-        var plan = _goapManager.GetPlan(_initialState);
+        print(_initialState.state.enemyHp);
+        print(_initialState.state.arrows);
+        print(_initialState.state.detected);
+        print(_initialState.state.arrowsAvailable);
+        print(_initialState.state.arrowNearby);
+        print(_initialState.state.enemyReachable);
+        print(_initialState.state.enemyNearby);
+        print(_initialState.state.canRetreat);
+        print(_initialState.state.equippedWeapon);
 
-        if (plan != default) StartCoroutine(_gm.agent.ActionExecution(plan));
+        if (_goapManager.TryGetPlan(_initialState, out var plan)) StartCoroutine(_gm.agent.ActionExecution(plan));
         else print("No se puede derrotar al enemigo");
     }
 }

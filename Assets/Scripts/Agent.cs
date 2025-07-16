@@ -10,14 +10,14 @@ public class Agent : MonoBehaviour
     float _currentSpeed;
 
     Pathfinding _pf;
-    Node _startingNode;
+    Node _currentNode;
     [SerializeField] Arrow _arrowPrefab;
 
     [SerializeField] Transform _weaponSpawnPos;
     [SerializeField] GameObject _bowPrefab, _daggerPrefab;
     GameObject _currentWeaponRef;
 
-    GameManager gm { get => GameManager.instance; }
+    GameManager _gm { get => GameManager.instance; }
 
     bool _busy = false;
 
@@ -30,25 +30,6 @@ public class Agent : MonoBehaviour
 
     void Update()
     {
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    var node = gm.GetOnCursorObject();
-        //    if (node != null) SetPosition(node.transform.position);
-        //}
-        //if (Input.GetKeyDown(KeyCode.Space))
-        //{
-        //    // StartCoroutine(_pf.PaintAStar(startNode, endNode, SetPath));
-        //    _pathToFollow = _pf.AStar(startNode, endNode);
-        //
-        //    if (startNode != null)
-        //    {
-        //        Vector3 pos = startNode.transform.position;
-        //        SetPosition(pos);
-        //    }
-        //}
-
-
-
         TravelThroughPath();
     }
 
@@ -67,6 +48,8 @@ public class Agent : MonoBehaviour
         {
             SetPosition(posTarget);
             _pathToFollow.RemoveAt(0);
+
+            if (_pathToFollow.Count == 0) _busy = false;
         }
 
         Move(dir);
@@ -84,41 +67,41 @@ public class Agent : MonoBehaviour
         transform.position = pos;
     }
 
-    public void SetNode(Node node)
+    public void SetStartingNode(Node node)
     {
-        _startingNode = node;
+        _currentNode = node;
         SetPosition(node.characterPos.position);
     }
 
     public bool IsNodeAccesible(Node node)
     {
-        var path = _pf.AStar(_startingNode, node);
+        var path = _pf.AStar(_currentNode, node);
 
         return path != null;
     }
 
     public bool ArrowNearby()
     {
-        return _startingNode.arrow != null;
+        return _currentNode.arrow != null;
     }
 
     public bool EnemyNearby()
     {
-        return _startingNode.isTaken;
+        return _currentNode.isTaken;
     }
 
     public void Run(Node node)
     {
-        _pathToFollow = _pf.AStar(_startingNode, node);
+        _pathToFollow = _pf.AStar(_currentNode, node);
         _currentSpeed = _runSpeed;
-        _startingNode = node;
+        _currentNode = node;
     }
 
     public void Sneak(Node node)
     {
-        _pathToFollow = _pf.AStar(_startingNode, node);
+        _pathToFollow = _pf.AStar(_currentNode, node);
         _currentSpeed = _sneakSpeed;
-        _startingNode = node;
+        _currentNode = node;
     }
 
     public void EquipDagger()
@@ -155,7 +138,7 @@ public class Agent : MonoBehaviour
     public void BowAttack()
     {
         var arrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity);
-        arrow.Shoot(gm.enemy.transform.position);
+        arrow.Shoot(_gm.enemy.transform.position);
     }
 
     public void SneakyDagger()
@@ -171,37 +154,38 @@ public class Agent : MonoBehaviour
     public void SneakyBow()
     {
         var arrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity);
-        arrow.Shoot(gm.enemy.transform.position);
+        arrow.Shoot(_gm.enemy.transform.position);
     }
 
     public void RunToArrow()
     {
-
+        Run(_gm.allNodes.Where(x => x.arrow != null).OrderBy(x => Vector3.Distance(transform.position, x.transform.position)).First());
     }
 
     public void SneakToArrow()
     {
-
+        Sneak(_gm.allNodes.Where(x => x.arrow != null).OrderBy(x => Vector3.Distance(transform.position, x.transform.position)).First());
     }
 
     public void RunToEnemy()
     {
-
+        Run(_gm.allNodes.Where(x => x.isTaken).First());
     }
 
     public void SneakToEnemy()
     {
-
+        Sneak(_gm.allNodes.Where(x => x.isTaken).First());
     }
 
     public void RunFromEnemy()
     {
-
+        Run(_gm.allNodes.Where(x => x.isTaken).First().neighbors.First());
     }
 
     public void PickArrow()
     {
-
+        Destroy(_currentNode.arrow.gameObject);
+        _currentNode.arrow = null;
     }
 
     public void TurnInvisible()

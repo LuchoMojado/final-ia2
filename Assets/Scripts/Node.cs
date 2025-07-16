@@ -5,7 +5,7 @@ using UnityEngine;
 public class Node : MonoBehaviour
 {
     public Coordinates coordinates;
-    List<Node> _neighbors;
+    [HideInInspector] public List<Node> neighbors;
     Grid _grid;
 
     Renderer _renderer;
@@ -20,12 +20,12 @@ public class Node : MonoBehaviour
     {
         get
         {
-            if (_neighbors == null)
+            if (neighbors == null)
             {
-                _neighbors = _grid.GetNeighbors(coordinates);
+                neighbors = _grid.GetNeighbors(coordinates);
             }
 
-            return _neighbors;
+            return neighbors;
         }
     }
 

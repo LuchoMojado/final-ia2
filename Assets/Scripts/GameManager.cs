@@ -20,28 +20,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            agent.EquipBow();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            agent.EquipDagger();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            agent.BowAttack();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            
-            //if (_startNode != null) _pf.BFS(_startNode);
-            // if (startNode != null) StartCoroutine(_pf.PaintAStar(startNode, endNode));
-        }
-
         if (Input.GetKeyDown(KeyCode.R))
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(0);
