@@ -4,45 +4,51 @@ using UnityEngine;
 using System;
 using System.Linq;
 
-public class GOAPManager : MonoBehaviour
+public class GOAPManager
 {
     Pathfinding _pf;
+    GameManager _gm;
 
-    private void Start()
+    public GOAPManager(GameManager gm)
     {
-        _pf = new Pathfinding();   
+        _pf = new();
+        _gm = gm;
     }
 
     List<GOAPActions> GetActions()
     {
         return new List<GOAPActions>()
         {
-            new GOAPActions("SwitchToDagger")
+            new GOAPActions("Switch to dagger")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.EquipDagger)
             .Precondition(x => x.state.equippedWeapon != WeaponType.Dagger)
             .Effect(x =>
             {
                 x.state.equippedWeapon = WeaponType.Dagger;
                 return x;
             }),
-            new GOAPActions("SwitchToHammer")
+            new GOAPActions("Switch to hammer")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.EquipHammer)
             .Precondition(x => x.state.equippedWeapon != WeaponType.Hammer)
             .Effect(x =>
             {
                 x.state.equippedWeapon = WeaponType.Hammer;
                 return x;
             }),
-            new GOAPActions("SwitchToBow")
+            new GOAPActions("Switch to bow")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.EquipBow)
             .Precondition(x => x.state.equippedWeapon != WeaponType.Bow)
             .Effect(x =>
             {
                 x.state.equippedWeapon = WeaponType.Bow;
                 return x;
             }),
-            new GOAPActions("DaggerAttack")
+            new GOAPActions("Dagger attack")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.DaggerAttack)
             .Precondition(x => x.state.equippedWeapon == WeaponType.Dagger && x.state.enemyNearby)
             .Effect(x => 
             {
@@ -50,8 +56,9 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("SneakyDaggerAttack")
+            new GOAPActions("Sneaky dagger attack")
             .SetCost(2)
+            .SetBehaviour(_gm.agent.SneakyDagger)
             .Precondition(x => x.state.equippedWeapon == WeaponType.Dagger && x.state.enemyNearby && !x.state.detected)
             .Effect(x =>
             {
@@ -59,8 +66,9 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("HammerAttack")
+            new GOAPActions("Hammer attack")
             .SetCost(2)
+            .SetBehaviour(_gm.agent.HammerAttack)
             .Precondition(x => x.state.equippedWeapon == WeaponType.Hammer && x.state.enemyNearby)
             .Effect(x =>
             {
@@ -68,8 +76,9 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("SneakyHammerAttack")
+            new GOAPActions("Sneaky hammer attack")
             .SetCost(2)
+            .SetBehaviour(_gm.agent.SneakyHammer)
             .Precondition(x => x.state.equippedWeapon == WeaponType.Hammer && x.state.enemyNearby && !x.state.detected)
             .Effect(x =>
             {
@@ -77,8 +86,9 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("BowAttack")
+            new GOAPActions("Bow attack")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.BowAttack)
             .Precondition(x => x.state.equippedWeapon == WeaponType.Bow && !x.state.enemyNearby && x.state.arrows > 0)
             .Effect(x =>
             {
@@ -87,8 +97,9 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("SneakyBowAttack")
+            new GOAPActions("Sneaky bow attack")
             .SetCost(2)
+            .SetBehaviour(_gm.agent.SneakyBow)
             .Precondition(x => x.state.equippedWeapon == WeaponType.Bow && !x.state.enemyNearby && x.state.arrows > 0 && !x.state.detected)
             .Effect(x =>
             {
@@ -97,8 +108,9 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("RunToArrow")
+            new GOAPActions("Run to arrow")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.RunToArrow)
             .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby)
             .Effect(x =>
             {
@@ -106,16 +118,18 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("SneakToArrow")
+            new GOAPActions("Sneak to arrow")
             .SetCost(2)
+            .SetBehaviour(_gm.agent.SneakToArrow)
             .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && !x.state.detected)
             .Effect(x =>
             {
                 x.state.arrowNearby = true;
                 return x;
             }),
-            new GOAPActions("RunToEnemy")
+            new GOAPActions("Run to enemy")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.RunToEnemy)
             .Precondition(x => x.state.enemyReachable && !x.state.enemyNearby)
             .Effect(x =>
             {
@@ -123,16 +137,18 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("SneakToEnemy")
+            new GOAPActions("Sneak to enemy")
             .SetCost(2)
+            .SetBehaviour(_gm.agent.SneakToEnemy)
             .Precondition(x => x.state.enemyReachable && !x.state.enemyNearby && !x.state.detected)
             .Effect(x =>
             {
                 x.state.enemyNearby = true;
                 return x;
             }),
-            new GOAPActions("RunAwayFromEnemy")
+            new GOAPActions("Run away from enemy")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.RunFromEnemy)
             .Precondition(x => x.state.canRetreat && x.state.enemyNearby)
             .Effect(x =>
             {
@@ -140,16 +156,20 @@ public class GOAPManager : MonoBehaviour
                 x.state.detected = true;
                 return x;
             }),
-            new GOAPActions("PickUpArrow")
+            new GOAPActions("Pick up arrow")
             .SetCost(1)
+            .SetBehaviour(_gm.agent.PickArrow)
             .Precondition(x => x.state.arrowNearby)
             .Effect(x =>
             {
                 x.state.arrows++;
+                x.state.arrowsAvailable--;
+                x.state.arrowNearby = false;
                 return x;
             }),
-            new GOAPActions("TurnInvisible")
+            new GOAPActions("Turn invisible")
             .SetCost(2)
+            .SetBehaviour(_gm.agent.TurnInvisible)
             .Precondition(x => x.state.detected && !x.state.enemyNearby)
             .Effect(x =>
             {

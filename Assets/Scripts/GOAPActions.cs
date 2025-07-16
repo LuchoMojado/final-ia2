@@ -3,9 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Accion para GOAP. Tiene precondiciones (Los requerimientos para una accion) y efectos (lo que va a pasar cuando se ejecute la funcion).
-/// </summary>
 public class GOAPActions
 {
     public string Name { get; private set; }
@@ -15,7 +12,7 @@ public class GOAPActions
 
     public int Cost { get; private set; }
 
-    //public ActionTypes RelatedAction { get; private set; }
+    public Action agentBehaviour;
 
     public GOAPActions(string name)
     {
@@ -29,11 +26,11 @@ public class GOAPActions
         return this;
     }
 
-    //public GoapAction SetAction(ActionTypes newAction)
-    //{
-    //    RelatedAction = newAction;
-    //    return this;
-    //}
+    public GOAPActions SetBehaviour(Action behaviour)
+    {
+        agentBehaviour = behaviour;
+        return this;
+    }
 
     public GOAPActions Precondition(Func<WorldState, bool> prec)
     {

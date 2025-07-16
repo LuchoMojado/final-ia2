@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Linq;
 
 public class Agent : MonoBehaviour
 {
@@ -8,7 +10,7 @@ public class Agent : MonoBehaviour
     float _currentSpeed;
 
     Pathfinding _pf;
-    Node _currentNode;
+    Node _startingNode;
     [SerializeField] Arrow _arrowPrefab;
 
     [SerializeField] Transform _weaponSpawnPos;
@@ -16,6 +18,8 @@ public class Agent : MonoBehaviour
     GameObject _currentWeaponRef;
 
     GameManager gm { get => GameManager.instance; }
+
+    bool _busy = false;
 
     List<Vector3> _pathToFollow = new List<Vector3>();
     // Start is called before the first frame update
@@ -80,52 +84,55 @@ public class Agent : MonoBehaviour
         transform.position = pos;
     }
 
-    public void SetCurrentNode(Node node)
+    public void SetNode(Node node)
     {
-        _currentNode = node;
+        _startingNode = node;
         SetPosition(node.characterPos.position);
     }
 
     public bool IsNodeAccesible(Node node)
     {
-        var path = _pf.AStar(_currentNode, node);
+        var path = _pf.AStar(_startingNode, node);
 
         return path != null;
     }
 
     public bool ArrowNearby()
     {
-        return _currentNode.arrow != null;
+        return _startingNode.arrow != null;
     }
 
     public bool EnemyNearby()
     {
-        return _currentNode.isTaken;
+        return _startingNode.isTaken;
     }
 
     public void Run(Node node)
     {
-        _pathToFollow = _pf.AStar(_currentNode, node);
+        _pathToFollow = _pf.AStar(_startingNode, node);
         _currentSpeed = _runSpeed;
-        _currentNode = node;
+        _startingNode = node;
     }
 
     public void Sneak(Node node)
     {
-        _pathToFollow = _pf.AStar(_currentNode, node);
+        _pathToFollow = _pf.AStar(_startingNode, node);
         _currentSpeed = _sneakSpeed;
-        _currentNode = node;
+        _startingNode = node;
     }
 
-    public void BowAttack()
+    public void EquipDagger()
     {
-        var arrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity);
-        arrow.Shoot(gm.enemy.transform.position);
+        if (_currentWeaponRef != null) Destroy(_currentWeaponRef);
+        var dagger = Instantiate(_daggerPrefab, _weaponSpawnPos);
+        _currentWeaponRef = dagger;
     }
 
-    public void DaggerAttack()
+    public void EquipHammer()
     {
-
+        //if (_currentWeaponRef != null) Destroy(_currentWeaponRef);
+        //var dagger = Instantiate(_daggerPrefab, _weaponSpawnPos);
+        //_currentWeaponRef = dagger;
     }
 
     public void EquipBow()
@@ -134,11 +141,95 @@ public class Agent : MonoBehaviour
         var bow = Instantiate(_bowPrefab, _weaponSpawnPos);
         _currentWeaponRef = bow;
     }
-
-    public void EquipDagger()
+    
+    public void DaggerAttack()
     {
-        if (_currentWeaponRef != null) Destroy(_currentWeaponRef);
-        var dagger = Instantiate(_daggerPrefab, _weaponSpawnPos);
-        _currentWeaponRef = dagger;
+
+    }
+
+    public void HammerAttack()
+    {
+
+    }
+
+    public void BowAttack()
+    {
+        var arrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity);
+        arrow.Shoot(gm.enemy.transform.position);
+    }
+
+    public void SneakyDagger()
+    {
+
+    }
+
+    public void SneakyHammer()
+    {
+
+    }
+
+    public void SneakyBow()
+    {
+        var arrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity);
+        arrow.Shoot(gm.enemy.transform.position);
+    }
+
+    public void RunToArrow()
+    {
+
+    }
+
+    public void SneakToArrow()
+    {
+
+    }
+
+    public void RunToEnemy()
+    {
+
+    }
+
+    public void SneakToEnemy()
+    {
+
+    }
+
+    public void RunFromEnemy()
+    {
+
+    }
+
+    public void PickArrow()
+    {
+
+    }
+
+    public void TurnInvisible()
+    {
+
+    }
+
+    public void ExecutePlan()
+    {
+
+    }
+
+    public IEnumerator ActionExecution(List<GOAPActions> actions)
+    {
+        while (actions.Any())
+        {
+            var action = actions.First();
+
+            action.agentBehaviour();
+            print(action.Name);
+
+            yield return new WaitForSeconds(0.25f);
+
+            while (_busy) yield return null;
+
+            actions.Remove(action);
+        }
+
+        print("plan completed");
     }
 }

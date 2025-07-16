@@ -31,8 +31,8 @@ public class Pathfinding
                     path.Add(current.transform.position);
                     current = cameFrom[current];
                 }
-                path.Add(start.transform.position); //# optional
-                path.Reverse(); // optional
+                path.Add(start.transform.position);
+                path.Reverse();
                 return path;
             }
 
@@ -65,8 +65,12 @@ public class Pathfinding
         var costSoFar = new Dictionary<WorldState, int>();
         costSoFar.Add(start, 0);
 
-        while (frontier.Count > 0)
+        int watchdog = 0;
+
+        while (frontier.Count > 0 || watchdog < 2000)
         {
+            watchdog++;
+
             var current = frontier.Dequeue();
 
             if (current == end || goalMet(current))
@@ -77,8 +81,8 @@ public class Pathfinding
                     path.Add(current);
                     current = cameFrom[current];
                 }
-                path.Add(current); //# optional
-                path.Reverse(); // optional
+                path.Add(current);
+                path.Reverse();
                 return path;
             }
 

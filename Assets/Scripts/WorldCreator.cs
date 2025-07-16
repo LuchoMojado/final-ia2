@@ -11,7 +11,6 @@ using static UnityEngine.EventSystems.EventTrigger;
 
 public class WorldCreator : MonoBehaviour
 {
-    [SerializeField] GOAPManager _goapManager;
     [SerializeField] GameObject _mapSize, _addObstacles, _placeCharacter, _placeEnemy, _placeArrows, _characterState;
     [SerializeField] Button _continueButton;
     [SerializeField] TMP_InputField _widthInput, _lengthInput;
@@ -30,13 +29,17 @@ public class WorldCreator : MonoBehaviour
     Action _clickCheck;
 
     GameManager _gm;
+    GOAPManager _goapManager;
 
     private void Start()
     {
         _gm = GameManager.instance;
 
+        _goapManager = new GOAPManager(_gm);
+
         _initialState = new();
         SetStartingWeapon(0);
+        SetInvisibility(false);
 
         StartCoroutine(SetUpWorld());
     }
@@ -120,7 +123,7 @@ public class WorldCreator : MonoBehaviour
     {
         if (node == null || node.isBlocked) return;
         
-        _gm.agent.SetCurrentNode(node);
+        _gm.agent.SetNode(node);
 
         _continueButton.interactable = true;
     }
@@ -170,9 +173,18 @@ public class WorldCreator : MonoBehaviour
         _initialState.state.equippedWeapon = (WeaponType)index;
     }
 
-    public void SetArrowCount(string value)
+    public void SetArrowCount(string input)
     {
-        _initialState.state.arrows = int.Parse(value);
+        var value = int.Parse(input);
+
+        if (value < 0)
+        {
+            value = 0;
+
+            _lengthInput.SetTextWithoutNotify("0");
+        }
+
+        _initialState.state.arrows = value;
 
         if (_initialState.state.enemyHp != 0) _continueButton.interactable = true;
     }
@@ -182,9 +194,18 @@ public class WorldCreator : MonoBehaviour
         _initialState.state.detected = !invisible;
     }
 
-    public void SetEnemyHP(string value)
+    public void SetEnemyHP(string input)
     {
-        _initialState.state.enemyHp = int.Parse(value);
+        var value = int.Parse(input);
+
+        if (value < 1)
+        {
+            value = 1;
+
+            _lengthInput.SetTextWithoutNotify("1");
+        }
+
+        _initialState.state.enemyHp = value;
 
         if (_initialState.state.arrows != 0) _continueButton.interactable = true;
     }
@@ -237,6 +258,8 @@ public class WorldCreator : MonoBehaviour
 
         yield return new WaitUntil(() => _continue);
 
+        _clickCheck = null;
+
         _continue = false;
         _continueButton.interactable = false;
 
@@ -263,6 +286,9 @@ public class WorldCreator : MonoBehaviour
         _initialState.state.enemyNearby = _gm.agent.EnemyNearby();
         _initialState.state.canRetreat = _grid.GetNeighbors(enemyNode.coordinates).Any();
 
-        _goapManager.GetPlan(_initialState);
+        var plan = _goapManager.GetPlan(_initialState);
+
+        if (plan != default) StartCoroutine(_gm.agent.ActionExecution(plan));
+        else print("No se puede derrotar al enemigo");
     }
 }
