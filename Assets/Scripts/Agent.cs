@@ -15,6 +15,7 @@ public class Agent : MonoBehaviour
 
     [SerializeField] Transform _weaponSpawnPos;
     [SerializeField] GameObject _bowPrefab, _daggerPrefab;
+    [SerializeField] Animator _anim;
     GameObject _currentWeaponRef;
 
     GameManager _gm { get => GameManager.instance; }
@@ -48,7 +49,8 @@ public class Agent : MonoBehaviour
         {
             SetPosition(posTarget);
             _pathToFollow.RemoveAt(0);
-
+            _anim.SetBool("run",false);
+            _anim.SetBool("sneakwalk", false);
             if (_pathToFollow.Count == 0) _busy = false;
         }
 
@@ -95,6 +97,7 @@ public class Agent : MonoBehaviour
         _pathToFollow = _pf.AStar(_currentNode, node);
         _currentSpeed = _runSpeed;
         _currentNode = node;
+        _anim.SetBool("run", true);
     }
 
     public void Sneak(Node node)
@@ -102,6 +105,7 @@ public class Agent : MonoBehaviour
         _pathToFollow = _pf.AStar(_currentNode, node);
         _currentSpeed = _sneakSpeed;
         _currentNode = node;
+        _anim.SetBool("sneakwalk", true);
     }
 
     public void EquipDagger()
@@ -109,6 +113,7 @@ public class Agent : MonoBehaviour
         if (_currentWeaponRef != null) Destroy(_currentWeaponRef);
         var dagger = Instantiate(_daggerPrefab, _weaponSpawnPos);
         _currentWeaponRef = dagger;
+        _anim.SetTrigger("switch");
     }
 
     public void EquipHammer()
@@ -116,6 +121,7 @@ public class Agent : MonoBehaviour
         //if (_currentWeaponRef != null) Destroy(_currentWeaponRef);
         //var dagger = Instantiate(_daggerPrefab, _weaponSpawnPos);
         //_currentWeaponRef = dagger;
+        //_anim.SetTrigger("switch");
     }
 
     public void EquipBow()
@@ -123,32 +129,34 @@ public class Agent : MonoBehaviour
         if (_currentWeaponRef != null) Destroy(_currentWeaponRef);
         var bow = Instantiate(_bowPrefab, _weaponSpawnPos);
         _currentWeaponRef = bow;
+        _anim.SetTrigger("switch");
     }
     
     public void DaggerAttack()
     {
-
+        _anim.SetTrigger("dagger");
     }
 
     public void HammerAttack()
     {
-
+        _anim.SetTrigger("hammer");
     }
 
     public void BowAttack()
     {
         var arrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity);
         arrow.Shoot(_gm.enemy.transform.position);
+        _anim.SetTrigger("bow");
     }
 
     public void SneakyDagger()
     {
-
+        _anim.SetTrigger("sneakydagger");
     }
 
     public void SneakyHammer()
     {
-
+        _anim.SetTrigger("sneakyhammer");
     }
 
     public void SneakyBow()
@@ -190,7 +198,7 @@ public class Agent : MonoBehaviour
 
     public void TurnInvisible()
     {
-
+        _anim.SetTrigger("invisible");
     }
 
     public void ExecutePlan()
