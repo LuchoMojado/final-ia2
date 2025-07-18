@@ -184,6 +184,7 @@ public class Agent : MonoBehaviour
 
         var arrow = Instantiate(_arrowPrefab, transform.position, Quaternion.identity);
         arrow.Shoot(_gm.enemy.transform.position);
+        _anim.SetTrigger("sneakybow");
         _busy = false;
     }
 
