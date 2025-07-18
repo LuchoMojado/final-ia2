@@ -54,7 +54,7 @@ public class Pathfinding
         return default;
     }
 
-    public List<WorldState> AStarGOAP(WorldState start, WorldState end, IEnumerable<GOAPActions> allActions, Func<WorldState, int> heuristic, Func<WorldState, bool> goalMet)
+    public List<WorldState> AStarGOAP(WorldState start, IEnumerable<GOAPActions> allActions, Func<WorldState, int> heuristic, Func<WorldState, bool> goalMet)
     {
         if (start == null) return default;
         var frontier = new PriorityQueue<WorldState>();
@@ -71,11 +71,11 @@ public class Pathfinding
         {
             watchdog++;
 
-            if (watchdog > 10000) return default;
+            if (watchdog > 20000) return default;
 
             var current = frontier.Dequeue();
 
-            if (current == end || goalMet(current))
+            if (goalMet(current))
             {
                 var path = new List<WorldState>();
                 while (current != start)

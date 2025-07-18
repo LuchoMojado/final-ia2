@@ -42,7 +42,8 @@ public class WorldCreator : MonoBehaviour
         _initialState.state.detected = true;
         _initialState.state.arrows = 0;
         _initialState.state.enemyHp = 50;
-        _initialState.state.equippedWeapon = WeaponType.Dagger;
+
+        SetStartingWeapon(0);
 
         StartCoroutine(SetUpWorld());
     }
@@ -173,6 +174,21 @@ public class WorldCreator : MonoBehaviour
     public void SetStartingWeapon(int index)
     {
         _initialState.state.equippedWeapon = (WeaponType)index;
+
+        switch ((WeaponType)index)
+        {
+            case WeaponType.Dagger:
+                _gm.agent.EquipDagger();
+                break;
+            case WeaponType.Hammer:
+                _gm.agent.EquipHammer();
+                break;
+            case WeaponType.Bow:
+                _gm.agent.EquipBow();
+                break;
+            default:
+                break;
+        }
     }
 
     public void SetArrowCount(string input)
@@ -192,6 +208,7 @@ public class WorldCreator : MonoBehaviour
     public void SetInvisibility(bool invisible)
     {
         _initialState.state.detected = !invisible;
+        _gm.agent.ToggleInvisibility(!invisible);
     }
 
     public void SetEnemyHP(string input)
@@ -283,17 +300,17 @@ public class WorldCreator : MonoBehaviour
         _initialState.state.arrowNearby = _gm.agent.ArrowNearby();
         _initialState.state.enemyReachable = _gm.agent.IsNodeAccesible(enemyNode);
         _initialState.state.enemyNearby = _gm.agent.EnemyNearby();
-        _initialState.state.canRetreat = enemyNode.neighbors.Any();
+        _initialState.state.canRetreat = enemyNode.Neighbors.Any();
 
-        print(_initialState.state.enemyHp);
-        print(_initialState.state.arrows);
-        print(_initialState.state.detected);
-        print(_initialState.state.arrowsAvailable);
-        print(_initialState.state.arrowNearby);
-        print(_initialState.state.enemyReachable);
-        print(_initialState.state.enemyNearby);
-        print(_initialState.state.canRetreat);
-        print(_initialState.state.equippedWeapon);
+        print("enemy hp: " + _initialState.state.enemyHp);
+        print("arrows: " + _initialState.state.arrows);
+        print("detected: " + _initialState.state.detected);
+        print("arrows available: " + _initialState.state.arrowsAvailable);
+        print("arrow nearby: " + _initialState.state.arrowNearby);
+        print("arrow reachable: " + _initialState.state.enemyReachable);
+        print("enemy nearby: " + _initialState.state.enemyNearby);
+        print("can retreat: " + _initialState.state.canRetreat);
+        print("equipped weapon: " + _initialState.state.equippedWeapon);
 
         if (_goapManager.TryGetPlan(_initialState, out var plan)) StartCoroutine(_gm.agent.ActionExecution(plan));
         else print("No se puede derrotar al enemigo");

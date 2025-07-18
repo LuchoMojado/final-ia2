@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Node : MonoBehaviour
 {
     public Coordinates coordinates;
-    [HideInInspector] public List<Node> neighbors;
+    List<Node> _neighbors;
     Grid _grid;
 
     Renderer _renderer;
@@ -20,12 +21,12 @@ public class Node : MonoBehaviour
     {
         get
         {
-            if (neighbors == null)
+            if (_neighbors == null)
             {
-                neighbors = _grid.GetNeighbors(coordinates);
+                _neighbors = _grid.GetNeighbors(coordinates);
             }
 
-            return neighbors;
+            return _neighbors;
         }
     }
 
@@ -41,6 +42,8 @@ public class Node : MonoBehaviour
 
     public void SetBlock(bool block)
     {
+        if (block && GameManager.instance.allNodes.Where(x => !x.isBlocked).Count() <= 1) return;
+
         isBlocked = block;
         ChangeColor(block ? Color.black : _baseColor);
     }

@@ -111,7 +111,7 @@ public class GOAPManager
             new GOAPActions("Run to arrow")
             .SetCost(1)
             .SetBehaviour(_gm.agent.RunToArrow)
-            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && x.state.equippedWeapon == WeaponType.Bow)
+            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && x.state.equippedWeapon == WeaponType.Bow && x.state.arrows <= 0)
             .Effect(x =>
             {
                 x.state.arrowNearby = true;
@@ -122,7 +122,7 @@ public class GOAPManager
             new GOAPActions("Sneak to arrow")
             .SetCost(2)
             .SetBehaviour(_gm.agent.SneakToArrow)
-            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && !x.state.detected && x.state.equippedWeapon == WeaponType.Bow)
+            .Precondition(x => x.state.arrowsAvailable > 0 && !x.state.arrowNearby && !x.state.detected && x.state.equippedWeapon == WeaponType.Bow && x.state.arrows <= 0)
             .Effect(x =>
             {
                 x.state.arrowNearby = true;
@@ -187,7 +187,8 @@ public class GOAPManager
     {
         Func<WorldState, int> heuristic = x =>
         {
-            return Mathf.RoundToInt(x.state.enemyHp);
+            return 0;
+            //return Mathf.RoundToInt(x.state.enemyHp);
         };
 
         Func<WorldState, bool> objective = x =>
@@ -195,7 +196,7 @@ public class GOAPManager
             return x.state.enemyHp <= 0;
         };
 
-        var worldStatePath = _pf.AStarGOAP(initialState, null, GetActions(), heuristic, objective);
+        var worldStatePath = _pf.AStarGOAP(initialState, GetActions(), heuristic, objective);
 
         if (worldStatePath != default)
         {
